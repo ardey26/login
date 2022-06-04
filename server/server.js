@@ -24,6 +24,7 @@ app.listen(PORT);
 mongoConnect();
 
 app.use('/user', require('./routes/userRoutes'));
+app.use('/post', require('./routes/postRoutes'));
 
 
 app.use(errorMiddleware)
