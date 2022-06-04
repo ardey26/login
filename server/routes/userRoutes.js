@@ -4,8 +4,11 @@ const router = express.Router();
 const {
     logInUser,
     registerUser,
-    recoverUser
+    recoverUser,
+    getUserPosts
 } = require('../controllers/userController');
+
+const { protect } = require('../middleware/jwtMiddleware');
 
 // LOGIN ROUTE
 router.post("/login", logInUser);
@@ -15,5 +18,8 @@ router.post("/register", registerUser);
 
 // FORGOTTEN PASSWORD ROUTE
 router.put("/login/recover", recoverUser);
+
+// RETRIEVE USER POSTS
+router.get("/me", protect, getUserPosts)
 
 module.exports = router;

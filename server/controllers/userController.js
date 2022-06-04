@@ -1,6 +1,19 @@
-// HASHING (BCRYPT)
+// DEPENDENCIES
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+// DATA MODEL
 const User = require('../models/user')
+
+// .ENV ACCESS
+require('dotenv').config();
+
+// JWT TOKEN GENERATION
+const generateJWT = (id) => {
+    return jwt.sign({ id }, process.env.JWT_ACCESS, {expiresIn: '30d'});
+}
+
+
 
 // @desc    LOGIN USER
 // @route   POST /user/login
@@ -16,7 +29,14 @@ const logInUser = async(req, res) => {
     
                 if (validatedPassword){
                     const message = "SUCCESSFUL LOGIN"
-                    res.json({message: message}).status(200);
+
+                    res.json({
+                        _id: user.id,
+                        name: user.username,
+                        password: user.password,
+                        token: generateJWT(user._id)
+                    });
+
                     console.log(message);
                     
                 }
@@ -58,7 +78,12 @@ const registerUser = async(req, res) => {
     
             await user.save();
     
-            res.json({message: "USER CREATED SUCCESSFULLY"});
+            res.json({
+                        _id: user.id,
+                        name: user.username,
+                        password: user.password,
+                        token: generateJWT(user._id)
+                    }).status(201);
             
             
         } catch (error) {
@@ -102,11 +127,24 @@ const recoverUser = async(req, res) => {
         } catch (error) {
          console.log(error.message)   
         }
-    }
+}
+
+// @desc    GET USER POSTS
+// @route   GET /user/me
+// @access  PRIVATE
+const getUserPosts = async(req, res) => {
+    const { _id, username, password } = await User.findById(req.user.id);
+
+    res.json({
+        id: _id,
+        username: username
+    })
+}
 
 
 module.exports = {
     logInUser,
     registerUser,
-    recoverUser
+    recoverUser,
+    getUserPosts
 }
